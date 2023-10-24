@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import {Routes, Route } from 'react-router-dom';
 import Gallery from './components/Gallery'
 import { CLIENT_ID, CLIENT_SECRET } from './keys';
 import './App.css';

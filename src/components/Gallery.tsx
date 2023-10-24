@@ -2,7 +2,7 @@ import { Component } from "react";
 import { Button, Card, CardContent, CardMedia, Container, Grid, TextField, Typography } from '@mui/material';
 import './Gallery.css'
 
-interface IAlbum {
+interface ISongGroup {
   name: string
   images: any[]
 }
@@ -13,7 +13,7 @@ interface IGalleryProps {
 
 interface IGalleryState {
   searchInput: string,
-  albums: IAlbum[]
+  songGroups: ISongGroup[]
 }
 
 class Gallery extends Component<IGalleryProps, IGalleryState> {
@@ -22,7 +22,7 @@ class Gallery extends Component<IGalleryProps, IGalleryState> {
 
     this.state = {
       searchInput: '',
-      albums: []
+      songGroups: []
     };
 
     this.setSearchInput = this.setSearchInput.bind(this);
@@ -32,11 +32,17 @@ class Gallery extends Component<IGalleryProps, IGalleryState> {
     this.setState({searchInput: inputVal})
   }
 
-  setAlbums(albumArray: IAlbum[]) {
-    this.setState({albums: albumArray})
+  setSongGroups(songGroupArray: ISongGroup[]) {
+    this.setState({songGroups: songGroupArray})
+  }
+
+  getAudioFeatures(album: ISongGroup) {
+    console.log('testing spongebob!')
+    console.log(album)
   }
   
-  shuffleArray(array: IAlbum[]) {
+  // helper function for shuffling our array
+  shuffleArray(array: ISongGroup[]) {
     for (let i = array.length - 1; i > 0; i--) {
         const j = Math.floor(Math.random() * (i + 1));
         [array[i], array[j]] = [array[j], array[i]];
@@ -58,20 +64,8 @@ class Gallery extends Component<IGalleryProps, IGalleryState> {
        .then(data => { 
         let resArr = data.albums.items.concat(data.playlists.items)
         this.shuffleArray(resArr)
-        this.setAlbums(resArr)
+        this.setSongGroups(resArr)
       })
-
-    // to get a list of an artist's albums, we need to do a few queries in a row
-    // let artistID = await fetch('https://api.spotify.com/v1/search?q=' + this.state.searchInput + '&type=artist', searchParams)
-    //   .then(result => result.json())
-    //   .then(data => { return data.artists.items[0].id })
-
-    // await fetch('https://api.spotify.com/v1/artists/' + artistID + '/albums?include_groups=album,single', searchParams)
-    //   .then(result => result.json())
-    //   .then(data => {
-    //     console.log(data.items)
-    //     this.setAlbums(data.items)
-    //   })
   }
 
   render() {
@@ -97,18 +91,19 @@ class Gallery extends Component<IGalleryProps, IGalleryState> {
         </div>
         
         <Grid container spacing={4}>
-          {this.state.albums.map((album: any, idx) => {
+          {this.state.songGroups.map((songGroup: ISongGroup, idx) => {
 
             return (
-              <Grid item xs={12} sm={6} md={3} key={this.state.albums.indexOf(album)}>
-                <Card sx={{ maxWidth: 400 }}>
+              <Grid item xs={12} sm={6} md={3} key={this.state.songGroups.indexOf(songGroup)}>
+                <Card sx={{ maxWidth: 400 }} onClick={() => this.getAudioFeatures(songGroup)}>
                   <CardMedia
                     sx={{ height: 140 }}
-                    image={album.images[0].url}
+                    image={songGroup.images[0].url}
                   />
                   <CardContent>
-                    <Typography variant="subtitle1"><i>{album.name}</i></Typography>
+                    <Typography variant="subtitle1"><i>{songGroup.name}</i></Typography>
                   </CardContent>
+                  
                 </Card>
               </Grid>
             )}
