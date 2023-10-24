@@ -1,0 +1,14 @@
+.searchbar {
+    padding: 2rem;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    .text-field {
+        margin-right: 1rem;
+    }
+
+    .btn {
+        margin-left: 1rem;
+    }
+}

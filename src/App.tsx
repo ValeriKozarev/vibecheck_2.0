@@ -1,24 +1,30 @@
-import React from 'react';
-import logo from './logo.svg';
+import React, { useEffect, useState } from 'react';
+import Gallery from './components/Gallery'
+import { CLIENT_ID, CLIENT_SECRET } from './keys';
 import './App.css';
 
 function App() {
+  // data we will want to keep track of in the session
+  const [accessToken, setAccessToken] = useState("")
+
+  // NOTE: runs once at start to handle spotify auth
+  useEffect(() => {
+    let spotifyAuthParams = {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded'
+      },
+      body: 'grant_type=client_credentials&client_id=' + CLIENT_ID + '&client_secret=' + CLIENT_SECRET
+    }
+
+    fetch('https://accounts.spotify.com/api/token', spotifyAuthParams)
+      .then(result => result.json())
+      .then(data => setAccessToken(data.access_token))
+  }, [])
+
   return (
     <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.tsx</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
+      <Gallery accessToken={accessToken}/>
     </div>
   );
 }
