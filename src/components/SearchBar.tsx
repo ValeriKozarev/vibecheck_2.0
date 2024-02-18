@@ -63,12 +63,11 @@ class SearchBar extends Component<ISearchBarProps, ISearchBarState> {
         .then(result => result.json())
         .then(data => { 
             if (filter === 'album') {
-                // TODO: hide singles
-                this.props.musicDataUpdate(data.albums.items)
+                this.props.musicDataUpdate(data.albums.items.filter((album: any) => album.album_type !== 'single'))
             } else if (filter === 'playlist') {
                 this.props.musicDataUpdate(data.playlists.items)
             } else {
-                this.props.musicDataUpdate(data.albums.items.concat(data.playlists.items))
+                this.props.musicDataUpdate(data.albums.items.filter((album: any) => album.album_type !== 'single').concat(data.playlists.items))
             }
         })
     }
@@ -98,8 +97,6 @@ class SearchBar extends Component<ISearchBarProps, ISearchBarState> {
                         variant="contained"
                         onClick={() => this.searchOnSpotify()}>Search
                     </Button>
-
-                    <Button>{this.state.filter}</Button>
                 </div>
 
                 <div className='secondary-row'>

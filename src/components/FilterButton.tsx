@@ -12,6 +12,7 @@ interface IFilterButtonProps {
 class FilterButton extends Component<IFilterButtonProps> {
     render() {
         console.log('filter button: ' + this.props.children + ' isSelected: ' + this.props.isSelected)
+        // TODO: switch to ToggleButton
         return (
             <Button id={this.props.isSelected ? 'val-active-btn' : ''} onClick={this.props.onSelect}>
                 {this.props.children}
