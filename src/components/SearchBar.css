@@ -1,0 +1,19 @@
+.searchbar {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    & .top-row {
+        padding-bottom: 0;
+        display: block;
+        width: 100%;
+    }
+
+    & .secondary-row {
+        padding-top: 6px;
+    }
+
+    & .btn {
+        margin-left: 1rem;
+    }
+}

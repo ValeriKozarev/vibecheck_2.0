@@ -1,6 +1,8 @@
 import { Component } from "react";
-import { Button, TextField } from '@mui/material';
+import { Button, ButtonGroup, TextField } from '@mui/material';
 import { ISongGroup } from "./Gallery";
+import FilterButton from './FilterButton';
+import './SearchBar.css';
 
 interface ISearchBarProps {
     musicDataUpdate: (musicData: ISongGroup[]) => void;
@@ -8,7 +10,9 @@ interface ISearchBarProps {
 
 interface ISearchBarState { 
     searchInput: string,
+    filter: string,
 }
+
 
 class SearchBar extends Component<ISearchBarProps, ISearchBarState> {
     constructor(props: ISearchBarProps) {
@@ -16,18 +20,29 @@ class SearchBar extends Component<ISearchBarProps, ISearchBarState> {
     
         this.state = {
           searchInput: '',
+          filter: 'album,playlist'
         };
 
         this.setSearchInput = this.setSearchInput.bind(this);
+        this.setSearchFilter = this.setSearchFilter.bind(this);
     }
 
     setSearchInput(inputVal: string) {
         this.setState({searchInput: inputVal})
     }
 
+    setSearchFilter(filterVal: string) {
+        this.setState({filter: filterVal})
+    }
+
+    updateFilterOnSearch(filter: string) {
+        this.setSearchFilter(filter);
+        this.searchOnSpotify(filter);
+    }
+
     // main way to interact with Spotify is here
     // find artist based on search, and then use artistID to list albums
-    async searchOnSpotify() {
+    async searchOnSpotify(filter?: string) {
         let searchParams = {
         method: 'GET',
         headers: {
@@ -36,44 +51,70 @@ class SearchBar extends Component<ISearchBarProps, ISearchBarState> {
         }
         }
 
-        console.log('search function, search string: ', this.state.searchInput)
+        let call = undefined;
+        
+        if (filter) {
+            call = 'https://api.spotify.com/v1/search?q=' + this.state.searchInput + '&type=' + filter
+        } else {
+            call = 'https://api.spotify.com/v1/search?q=' + this.state.searchInput + '&type=album,playlist'
+        }
 
-        await fetch('https://api.spotify.com/v1/search?q=' + this.state.searchInput + '&type=album,playlist', searchParams)
+        await fetch(call, searchParams)
         .then(result => result.json())
         .then(data => { 
-            // build out one big array of albums and playlists and shuffle it
-            let resArr = data.albums.items.concat(data.playlists.items)
-
-            console.log("returning this data: ", resArr)
-
-            this.props.musicDataUpdate(resArr)
+            if (filter === 'album') {
+                // TODO: hide singles
+                this.props.musicDataUpdate(data.albums.items)
+            } else if (filter === 'playlist') {
+                this.props.musicDataUpdate(data.playlists.items)
+            } else {
+                this.props.musicDataUpdate(data.albums.items.concat(data.playlists.items))
+            }
         })
     }
 
     render() {
         return (
             <div className='searchbar'>
-                <TextField 
-                    className="text-field"
-                    label="Search" 
-                    variant="standard" 
-                    onKeyDown={event => {
-                        if (event.key === 'Enter') {
-                            this.searchOnSpotify();
+                <div className='top-row'>
+                    <TextField 
+                        className="text-field"
+                        label="Search" 
+                        variant="outlined" 
+                        onKeyDown={event => {
+                            if (event.key === 'Enter') {
+                                this.searchOnSpotify();
+                            }
+                        }}
+                        onChange={(event) => {
+                            this.setSearchInput(event.target.value)
+                            event.preventDefault();
+                            }
                         }
-                    }}
-                    onChange={(event) => {
-                        this.setSearchInput(event.target.value)
-                        event.preventDefault();
-                        }
-                    }
-                />
-                
-                <Button 
-                    className="btn"
-                    variant="contained"
-                    onClick={() => this.searchOnSpotify()}>Search
-                </Button>
+                    />
+                    
+                    <Button 
+                        className="btn"
+                        variant="contained"
+                        onClick={() => this.searchOnSpotify()}>Search
+                    </Button>
+
+                    <Button>{this.state.filter}</Button>
+                </div>
+
+                <div className='secondary-row'>
+                    <ButtonGroup variant="outlined" aria-label="Basic button group">
+                        <FilterButton isSelected={this.state.filter === 'album' ? true : false} onSelect={() => this.updateFilterOnSearch('album')}>
+                            Albums
+                        </FilterButton>
+                        <FilterButton isSelected={this.state.filter === 'playlist' ? true : false} onSelect={() => this.updateFilterOnSearch('playlist')}>
+                            Playlists
+                        </FilterButton>
+                        <FilterButton isSelected={this.state.filter === 'album,playlist' ? true : false} onSelect={() => this.updateFilterOnSearch('album,playlist')}>
+                            Both
+                        </FilterButton>
+                    </ButtonGroup>
+                </div>
             </div>
         )
     }

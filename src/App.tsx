@@ -21,9 +21,8 @@ function App() {
 
       window.location.hash = ""
       window.localStorage.setItem("token", token)
-      setToken(token)
     }
-
+    setToken(token)
   }, [])
 
   // the complete URL for authenticating with Spotify
