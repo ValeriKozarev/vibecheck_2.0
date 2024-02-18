@@ -13,7 +13,7 @@ class FilterButton extends Component<IFilterButtonProps> {
     render() {
         console.log('filter button: ' + this.props.children + ' isSelected: ' + this.props.isSelected)
         return (
-            <Button className={this.props.isSelected ? 'active' : ''} onClick={this.props.onSelect}>
+            <Button id={this.props.isSelected ? 'val-active-btn' : ''} onClick={this.props.onSelect}>
                 {this.props.children}
             </Button>
         )
