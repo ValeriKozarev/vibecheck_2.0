@@ -10,6 +10,15 @@ import {
   Legend,
 } from 'chart.js';
 import { Radar } from 'react-chartjs-2';
+import Button from '@mui/material/Button';
+import Dialog from '@mui/material/Dialog';
+import DialogTitle from '@mui/material/DialogTitle';
+import DialogContent from '@mui/material/DialogContent';
+import DialogActions from '@mui/material/DialogActions';
+import IconButton from '@mui/material/IconButton';
+import CloseIcon from '@mui/icons-material/Close';
+import { styled } from '@mui/material/styles';
+
 import { ISongGroup } from './Gallery';
 
 interface ISongData {
@@ -30,26 +39,50 @@ interface IResultsViewProps {
 }
 
 interface IResultsViewState {
-  dataToShow?: ISongAnalyticsData
+  dataToShow?: ISongAnalyticsData,
+  isDialogOpen: boolean
 }
 
+const BootstrapDialog = styled(Dialog)(({ theme }) => ({
+  '& .MuiDialogContent-root': {
+    padding: theme.spacing(2),
+  },
+  '& .MuiDialogActions-root': {
+    padding: theme.spacing(1),
+  },
+}));
 
 class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
 
     constructor(props: IResultsViewProps) {
       super(props)
 
+      // TODO: required or it won't work, why?
       ChartJS.register([RadialLinearScale, PointElement, LineElement, Filler, Tooltip,Legend])
 
       this.state = {
         dataToShow: undefined,
+        isDialogOpen: false
       }
 
       this.setDataToShow = this.setDataToShow.bind(this);
+      this.setIsDialogOpen = this.setIsDialogOpen.bind(this);
     }
 
     setDataToShow(data: ISongAnalyticsData) {
       this.setState({dataToShow: data})
+    }
+
+    setIsDialogOpen(value: boolean) {
+      this.setState({isDialogOpen: value});
+    }
+
+    handleClickOpen() {
+      this.setIsDialogOpen(true)
+    }
+
+    handleClose() {
+      this.setIsDialogOpen(false)
     }
 
     async getAudioFeatures(songGroup: ISongGroup) {
@@ -99,17 +132,14 @@ class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
         let danceability = (audioFeatures.reduce((total: number, next: any) => total + next.danceability, 0) / audioFeatures.length)
         let acousticness = (audioFeatures.reduce((total: number, next: any) => total + next.acousticness, 0) / audioFeatures.length)
         let instrumentalness = (audioFeatures.reduce((total: number, next: any) => total + next.instrumentalness, 0) / audioFeatures.length)
-        console.log('Summary Stats for ' + songGroup.name)
-        console.log('avg energy: ' + energy)
-        console.log('avg danceability: ' + danceability)
-        console.log('avg acousticness: ' + acousticness)
-        console.log('avg instrumentalness: ' + instrumentalness)
+        let speechiness = (audioFeatures.reduce((total: number, next: any) => total + next.speechiness, 0) / audioFeatures.length)
+
         
         let analyticsData: ISongAnalyticsData = {
-          labels: ['energy', 'danceability', 'acousticness', 'instrumentalness'],
+          labels: ['energy', 'danceability', 'acousticness', 'instrumentalness', 'speechiness'],
           datasets: [{
             label: 'Analytics',
-            data: [energy, danceability, acousticness, instrumentalness],
+            data: [energy, danceability, acousticness, instrumentalness, speechiness],
             backgroundColor: 'rgba(255, 99, 132, 0.2)',
             borderColor: 'rgba(255, 99, 132, 1)',
             borderWidth: 1,
@@ -117,7 +147,8 @@ class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
         }
 
         this.setDataToShow(analyticsData);
-    
+        this.handleClickOpen();
+
         // step 5: get recommendations? theres an API for that
       }
       
@@ -130,15 +161,42 @@ class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
                     return (
                         <Grid item xs={12} sm={6} md={3} key={this.props.musicData.indexOf(songGroup)}>
                             <Card sx={{ maxWidth: 400 }} onClick={() => this.getAudioFeatures(songGroup)}>
-                            <CardMedia
-                                sx={{ height: 140 }}
-                                image={songGroup.images[0].url}
-                            />
-                            <CardContent>
-                                <Typography variant="subtitle1"><i>{songGroup.name}</i></Typography>
-                                {this.state.dataToShow ? <Radar data={this.state.dataToShow}/> : null}
-                            </CardContent>
-                            
+                              <CardMedia
+                                  sx={{ height: 140 }}
+                                  image={songGroup.images[0].url}
+                              />
+                              <CardContent>
+                                  <Typography variant="subtitle1"><i>{songGroup.name}</i></Typography>
+                              </CardContent>
+                              <BootstrapDialog
+                                onClose={this.handleClose}
+                                aria-labelledby="customized-dialog-title"
+                                open={this.state.isDialogOpen}
+                              >
+                                <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+                                  Modal title
+                                </DialogTitle>
+                                <IconButton
+                                  aria-label="close"
+                                  onClick={this.handleClose}
+                                  sx={{
+                                    position: 'absolute',
+                                    right: 8,
+                                    top: 8,
+                                    color: (theme) => theme.palette.grey[500],
+                                  }}
+                                >
+                                  <CloseIcon />
+                                </IconButton>
+                                <DialogContent>
+                                  <Radar data={this.state.dataToShow}/>
+                                </DialogContent>
+                                <DialogActions>
+                                  <Button autoFocus onClick={this.handleClose}>
+                                    Save changes
+                                  </Button>
+                                </DialogActions>
+                              </BootstrapDialog>                     
                             </Card>
                         </Grid>
                     )}
