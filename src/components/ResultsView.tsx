@@ -1,5 +1,5 @@
 import { Component } from "react";
-import { Card, CardContent, CardMedia, Grid, Typography } from '@mui/material';
+import { Card, CardContent, CardMedia, CardActionArea, Grid, Typography } from '@mui/material';
 import {
   Chart as ChartJS,
   RadialLinearScale,
@@ -150,17 +150,18 @@ class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
           <>
             <Grid container spacing={4}>
                 {this.props.musicData.map((songGroup: ISongGroup, idx) => {
-
                     return (
                         <Grid item xs={12} sm={6} md={3} key={this.props.musicData.indexOf(songGroup)}>
                             <Card sx={{ maxWidth: 400 }} onClick={() => this.getAudioFeatures(songGroup)}>
-                              <CardMedia
-                                  sx={{ height: 140 }}
-                                  image={songGroup.images[0].url}
-                              />
-                              <CardContent>
-                                  <Typography variant="subtitle1"><i>{songGroup.name}</i></Typography>
-                              </CardContent>                   
+                              <CardActionArea>
+                                <CardMedia
+                                    sx={{ height: 240 }}
+                                    image={songGroup.images[0].url}
+                                />
+                                <CardContent sx={{ height: 45 }}>
+                                    <Typography variant="subtitle1"><i>{songGroup.name}</i></Typography>
+                                </CardContent>
+                              </CardActionArea>                
                             </Card>
                         </Grid>
                     )}
