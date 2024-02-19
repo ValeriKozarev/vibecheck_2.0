@@ -35,7 +35,6 @@ class Gallery extends Component<IGalleryProps, IGalleryState> {
   }
 
   setSongGroups(songGroupArray: ISongGroup[]) {
-    console.log("state update")
     this.setState({songGroups: songGroupArray})
   }
 

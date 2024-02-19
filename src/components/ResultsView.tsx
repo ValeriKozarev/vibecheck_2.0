@@ -1,12 +1,56 @@
 import { Component } from "react";
 import { Card, CardContent, CardMedia, Grid, Typography } from '@mui/material';
+import {
+  Chart as ChartJS,
+  RadialLinearScale,
+  PointElement,
+  LineElement,
+  Filler,
+  Tooltip,
+  Legend,
+} from 'chart.js';
+import { Radar } from 'react-chartjs-2';
 import { ISongGroup } from './Gallery';
+
+interface ISongData {
+  label: string,
+  data: number[],
+  backgroundColor: string,
+  borderColor: string,
+  borderWidth: number
+}
+
+interface ISongAnalyticsData {
+  labels: string[]
+  datasets: ISongData[]
+}
 
 interface IResultsViewProps {
     musicData: ISongGroup[]
 }
 
-class ResultsView extends Component<IResultsViewProps> {
+interface IResultsViewState {
+  dataToShow?: ISongAnalyticsData
+}
+
+
+class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
+
+    constructor(props: IResultsViewProps) {
+      super(props)
+
+      ChartJS.register([RadialLinearScale, PointElement, LineElement, Filler, Tooltip,Legend])
+
+      this.state = {
+        dataToShow: undefined,
+      }
+
+      this.setDataToShow = this.setDataToShow.bind(this);
+    }
+
+    setDataToShow(data: ISongAnalyticsData) {
+      this.setState({dataToShow: data})
+    }
 
     async getAudioFeatures(songGroup: ISongGroup) {
         let searchParams = {
@@ -51,14 +95,30 @@ class ResultsView extends Component<IResultsViewProps> {
           .then(data => { return data.audio_features })
     
         // step 4: parse/analyze audio features
+        let energy = (audioFeatures.reduce((total: number, next: any) => total + next.energy, 0) / audioFeatures.length)
+        let danceability = (audioFeatures.reduce((total: number, next: any) => total + next.danceability, 0) / audioFeatures.length)
+        let acousticness = (audioFeatures.reduce((total: number, next: any) => total + next.acousticness, 0) / audioFeatures.length)
+        let instrumentalness = (audioFeatures.reduce((total: number, next: any) => total + next.instrumentalness, 0) / audioFeatures.length)
         console.log('Summary Stats for ' + songGroup.name)
-        console.log('avg energy: ' + (audioFeatures.reduce((total: number, next: any) => total + next.energy, 0) / audioFeatures.length))
-        console.log('avg danceability: ' + (audioFeatures.reduce((total: number, next: any) => total + next.danceability, 0) / audioFeatures.length))
-        console.log('avg acousticness: ' + (audioFeatures.reduce((total: number, next: any) => total + next.acousticness, 0) / audioFeatures.length))
-        console.log('avg instrumentalness: ' + (audioFeatures.reduce((total: number, next: any) => total + next.instrumentalness, 0) / audioFeatures.length))
+        console.log('avg energy: ' + energy)
+        console.log('avg danceability: ' + danceability)
+        console.log('avg acousticness: ' + acousticness)
+        console.log('avg instrumentalness: ' + instrumentalness)
+        
+        let analyticsData: ISongAnalyticsData = {
+          labels: ['energy', 'danceability', 'acousticness', 'instrumentalness'],
+          datasets: [{
+            label: 'Analytics',
+            data: [energy, danceability, acousticness, instrumentalness],
+            backgroundColor: 'rgba(255, 99, 132, 0.2)',
+            borderColor: 'rgba(255, 99, 132, 1)',
+            borderWidth: 1,
+          }]
+        }
+
+        this.setDataToShow(analyticsData);
     
-    
-        // step 5: get recommendations? theres an aPI for that
+        // step 5: get recommendations? theres an API for that
       }
       
 
@@ -76,6 +136,7 @@ class ResultsView extends Component<IResultsViewProps> {
                             />
                             <CardContent>
                                 <Typography variant="subtitle1"><i>{songGroup.name}</i></Typography>
+                                {this.state.dataToShow ? <Radar data={this.state.dataToShow}/> : null}
                             </CardContent>
                             
                             </Card>
