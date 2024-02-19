@@ -77,14 +77,6 @@ class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
       this.setState({isDialogOpen: value});
     }
 
-    handleClickOpen() {
-      this.setIsDialogOpen(true)
-    }
-
-    handleClose() {
-      this.setIsDialogOpen(false)
-    }
-
     async getAudioFeatures(songGroup: ISongGroup) {
         let searchParams = {
           method: 'GET',
@@ -138,7 +130,7 @@ class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
         let analyticsData: ISongAnalyticsData = {
           labels: ['energy', 'danceability', 'acousticness', 'instrumentalness', 'speechiness'],
           datasets: [{
-            label: 'Analytics',
+            label: 'Feature Scores',
             data: [energy, danceability, acousticness, instrumentalness, speechiness],
             backgroundColor: 'rgba(255, 99, 132, 0.2)',
             borderColor: 'rgba(255, 99, 132, 1)',
@@ -147,7 +139,7 @@ class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
         }
 
         this.setDataToShow(analyticsData);
-        this.handleClickOpen();
+        this.setIsDialogOpen(true);
 
         // step 5: get recommendations? theres an API for that
       }
@@ -155,6 +147,7 @@ class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
 
     render() {
         return (
+          <>
             <Grid container spacing={4}>
                 {this.props.musicData.map((songGroup: ISongGroup, idx) => {
 
@@ -167,41 +160,42 @@ class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
                               />
                               <CardContent>
                                   <Typography variant="subtitle1"><i>{songGroup.name}</i></Typography>
-                              </CardContent>
-                              <BootstrapDialog
-                                onClose={this.handleClose}
-                                aria-labelledby="customized-dialog-title"
-                                open={this.state.isDialogOpen}
-                              >
-                                <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
-                                  Modal title
-                                </DialogTitle>
-                                <IconButton
-                                  aria-label="close"
-                                  onClick={this.handleClose}
-                                  sx={{
-                                    position: 'absolute',
-                                    right: 8,
-                                    top: 8,
-                                    color: (theme) => theme.palette.grey[500],
-                                  }}
-                                >
-                                  <CloseIcon />
-                                </IconButton>
-                                <DialogContent>
-                                  <Radar data={this.state.dataToShow}/>
-                                </DialogContent>
-                                <DialogActions>
-                                  <Button autoFocus onClick={this.handleClose}>
-                                    Save changes
-                                  </Button>
-                                </DialogActions>
-                              </BootstrapDialog>                     
+                              </CardContent>                   
                             </Card>
                         </Grid>
                     )}
                 )}
             </Grid>
+            <BootstrapDialog
+              onClose={() => this.setIsDialogOpen(false)}
+              aria-labelledby="customized-dialog-title"
+              open={this.state.isDialogOpen}
+            >
+              <DialogTitle sx={{ m: 0, p: 2 }} id="customized-dialog-title">
+                Audio Feature Analysis
+              </DialogTitle>
+              <IconButton
+                aria-label="close"
+                onClick={() => this.setIsDialogOpen(false)}
+                sx={{
+                  position: 'absolute',
+                  right: 8,
+                  top: 8,
+                  color: (theme) => theme.palette.grey[500],
+                }}
+              >
+                <CloseIcon />
+              </IconButton>
+              <DialogContent>
+                <Radar data={this.state.dataToShow}/>
+              </DialogContent>
+              <DialogActions>
+                <Button autoFocus onClick={() => this.setIsDialogOpen(false)}>
+                  Close
+                </Button>
+              </DialogActions>
+            </BootstrapDialog>  
+          </>
         )
     }
 }
