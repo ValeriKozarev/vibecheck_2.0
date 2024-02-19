@@ -43,6 +43,12 @@ class SearchBar extends Component<ISearchBarProps, ISearchBarState> {
     // main way to interact with Spotify is here
     // find artist based on search, and then use artistID to list albums
     async searchOnSpotify(filter?: string) {
+        // short-circuit on no input
+        if (!this.state.searchInput) {
+            this.props.musicDataUpdate([]);
+            return
+        }
+
         let searchParams = {
         method: 'GET',
         headers: {
