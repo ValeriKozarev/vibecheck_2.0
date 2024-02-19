@@ -1,16 +1,18 @@
 .searchbar {
     display: flex;
+    flex-wrap: wrap;
     justify-content: center;
     align-items: center;
 
     & .top-row {
-        padding-bottom: 0;
-        display: block;
+        padding: 12px;
+        display: flex;
+        justify-content: center;
         width: 100%;
     }
 
     & .secondary-row {
-        padding-top: 6px;
+        padding-bottom: 12px;
     }
 
     & .btn {
