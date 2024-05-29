@@ -188,7 +188,7 @@ class ResultsView extends Component<IResultsViewProps, IResultsViewState> {
                 <CloseIcon />
               </IconButton>
               <DialogContent>
-                <Radar data={this.state.dataToShow}/>
+                <Radar data={this.state.dataToShow!}/>
               </DialogContent>
               <DialogActions>
                 <Button autoFocus onClick={() => this.setIsDialogOpen(false)}>
